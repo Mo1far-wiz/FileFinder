@@ -1,5 +1,14 @@
+#include <iostream>
+#include <filesystem>
 #include "Finder.h"
 
+namespace fs = std::filesystem;
+
 int main() {
-	Finder::find("index.html");
+	try {
+		Finder::find("index.html");
+	}
+	catch (...) {
+	}
+	
 }
