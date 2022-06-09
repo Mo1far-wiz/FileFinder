@@ -10,10 +10,9 @@ private :
 	size_t _thread_counter;
 	bool _recursion_exit;
 	const fs::path _root;
-	const fs::path _target;
 	
 public:
-	Finder(fs::path const& targ) : _thread_counter(0), _recursion_exit(false), _root(fs::current_path().root_path()), _target(targ) {}
+	Finder() : _thread_counter(0), _recursion_exit(false), _root(fs::current_path().root_path()) {}
 
 	void recursive_search(fs::path const& root, std::string const& target, size_t loop = 0, bool exit = false) {
 		for (auto const& dir_entry : fs::directory_iterator{ root }) {
@@ -46,8 +45,8 @@ public:
 		}
 	}
 
-	void find() {
-		recursive_search(_root, _target.string());
+	void find(fs::path const& targ) {
+		recursive_search(_root, targ.string());
 	}
 };
 
