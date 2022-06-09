@@ -37,7 +37,7 @@ void recursive_search(fs::path const& root, std::string const& target, size_t lo
 	}
 }
 
-void FileFinder::find(fs::path const& targ)
+void Finder::find(fs::path const& targ)
 {
 	recursive_search(fs::current_path().root_path(), targ.string());
 }
