@@ -7,6 +7,7 @@
 namespace fs = std::filesystem;
 
 std::mutex mutex;
+size_t _max_threds = 8;
 bool _recursion_exit = false;
 
 void recursive_search(fs::path const& root, std::string const& target, size_t loop = 0) {
