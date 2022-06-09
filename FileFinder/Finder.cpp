@@ -9,28 +9,29 @@ std::mutex mutex;
 bool _recursion_exit = false;
 size_t _max_threds = 8;
 
-void recursive_search(fs::path const& root, std::string const& target, size_t loop = 0, bool exit = false) {
-	for (auto const& dir_entry : fs::directory_iterator{ root }) {
-		if (_recursion_exit == true)
-			return;
+void recursive_search(fs::path const& root, std::string const& target, size_t loop = 0) {
+	try {
+		for (auto const& dir_entry : fs::directory_iterator{ root }) {
+			if (!dir_entry.is_directory())
+				continue;
 
-		if (!dir_entry.is_directory())
-			continue;
+			if (fs::exists(dir_entry / fs::path(target)) && _recursion_exit != true) {
+				std::scoped_lock<std::mutex> lock(mutex);
+				_recursion_exit = true;
 
-		if (fs::exists(dir_entry / fs::path(target)) && _recursion_exit != true) {
-			std::scoped_lock<std::mutex> lock(mutex);
-			std::cout << std::string(loop, ' ') << dir_entry / fs::path(target) << std::endl;
-			_recursion_exit = true;
-			return;
-		}
+				std::cout << std::string(loop, ' ') << dir_entry / fs::path(target) << std::endl;
+				return;
+			}
 
-		try {
 			//std::cout << std::string(loop, ' ') << dir_entry << std::endl;
-			recursive_search(dir_entry, target, ++loop, _recursion_exit);
+			recursive_search(dir_entry, target, ++loop);
+			--loop;
+
+			if (_recursion_exit == true)
+				return;
 		}
-		catch (...) {}
-		--loop;
 	}
+	catch (...) {}
 }
 
 void Finder::find(fs::path const& targ)
@@ -45,7 +46,7 @@ void Finder::find(fs::path const& targ)
 		}
 
 		if (dir_entry.is_directory())
-			threads.push_back(std::thread(recursive_search, dir_entry, targ.string(), 0, false));
+			threads.push_back(std::thread(recursive_search, dir_entry, targ.string(), 0));
 
 		if (_recursion_exit) {
 			for (auto& thr : threads)

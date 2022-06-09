@@ -6,7 +6,7 @@ namespace fs = std::filesystem;
 
 int main() {
 	try {
-		Finder::find("index.html");
+		Finder::find("icecast.luac");
 	}
 	catch (...) {
 	}
