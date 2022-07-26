@@ -1,5 +1,5 @@
 #include "Finder.h"
 
 int main() {
-		Finder::find("icecast.luac");
+		Finder::find("config.log");
 }

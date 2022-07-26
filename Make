@@ -1,8 +1,0 @@
-output: Finder.o
-	g++ -pthread Finder.o -o output -std=c++17
-
-Finder.o: Finder.cpp
-	g++ -c Finder.cpp
-
-clean:
-	rm *.o output
