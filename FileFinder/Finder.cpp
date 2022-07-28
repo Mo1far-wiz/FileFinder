@@ -10,6 +10,7 @@ namespace fs = std::filesystem;
 std::mutex mutex;
 size_t _max_threds = 8;
 bool _recursion_exit = false;
+fs::path _target_loc("<No such file on>");
 
 void recursive_search(const fs::path& root, const std::string& target, size_t loop = 0) {
 	try {
@@ -21,7 +22,8 @@ void recursive_search(const fs::path& root, const std::string& target, size_t lo
 				std::scoped_lock<std::mutex> lock(mutex);
 				_recursion_exit = true;
 
-				std::cout << std::string(loop, ' ') << dir_entry / fs::path(target) << std::endl;
+				//std::cout << std::string(loop, ' ') << dir_entry / fs::path(target) << std::endl;
+				_target_loc = dir_entry / fs::path(target);
 				return;
 			}
 
@@ -32,11 +34,25 @@ void recursive_search(const fs::path& root, const std::string& target, size_t lo
 			if (_recursion_exit == true)
 				return;
 		}
+
+		return;
 	}
-	catch (...) {}
+	catch (const fs::filesystem_error& er) {
+		if (er.code().value() == 5) {
+			//std::cout << "Dir access is denied" << std::endl;
+		}
+		else
+			std::cout << er.what() << " | " << er.code() << std::endl;
+	}
+	catch (const std::exception& ex) {
+		std::cout << ex.what() << std::endl;
+	}
+	catch (...) {	
+		throw;
+	}
 }
 
-void Finder::find(const std::filesystem::path& targ)
+fs::path Finder::find(const std::filesystem::path& targ)
 {
 	const fs::path root(fs::current_path().root_path());
 	std::list<std::thread> threads;
@@ -53,7 +69,13 @@ void Finder::find(const std::filesystem::path& targ)
 		if (_recursion_exit) {
 			for (auto& thr : threads)
 				thr.join();
-			return;
+			return _target_loc;
 		}
 	}
+
+	for (auto& thr : threads)
+		thr.join();
+
+	//std::cout << "No such file on " << root;
+	return fs::path(root / "<No such file>");
 }
