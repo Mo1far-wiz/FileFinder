@@ -2,5 +2,5 @@
 #include <filesystem>
 
 namespace Finder {
-	void find(std::filesystem::path const& targ);
+	void find(const std::filesystem::path& targ);
 }
